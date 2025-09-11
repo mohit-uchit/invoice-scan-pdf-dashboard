@@ -1,0 +1,124 @@
+{
+    "success": true,
+    "data": {
+        "vendor": {
+            "name": "CPB SOFTWARE (GERMANY) GMBH",
+            "address": "Im Bruch 3 - 63897 Miltenberg/Main",
+            "taxId": "DE199378386"
+        },
+        "invoice": {
+            "number": "123100401",
+            "date": "2024-03-01",
+            "currency": "€",
+            "subtotal": 381.12,
+            "taxPercent": 19,
+            "total": 453.53,
+            "poNumber": "12345",
+            "poDate": "2024-02-29",
+            "lineItems": [
+                {
+                    "description": "Basic Fee wmView",
+                    "unitPrice": 130,
+                    "quantity": 1,
+                    "total": 130
+                },
+                {
+                    "description": "Basis fee for additional user accounts",
+                    "unitPrice": 10,
+                    "quantity": 0,
+                    "total": 0
+                },
+                {
+                    "description": "Basic Fee wmPos",
+                    "unitPrice": 50,
+                    "quantity": 0,
+                    "total": 0
+                },
+                {
+                    "description": "Basic Fee wmGuide",
+                    "unitPrice": 1000,
+                    "quantity": 0,
+                    "total": 0
+                },
+                {
+                    "description": "Change of user accounts",
+                    "unitPrice": 10,
+                    "quantity": 0,
+                    "total": 0
+                },
+                {
+                    "description": "Transaction Fee T1",
+                    "unitPrice": 0.58,
+                    "quantity": 14,
+                    "total": 8.12
+                },
+                {
+                    "description": "Transaction Fee T2",
+                    "unitPrice": 0.7,
+                    "quantity": 0,
+                    "total": 0
+                },
+                {
+                    "description": "Transaction Fee T3",
+                    "unitPrice": 1.5,
+                    "quantity": 162,
+                    "total": 243
+                },
+                {
+                    "description": "Transaction Fee T4",
+                    "unitPrice": 0.5,
+                    "quantity": 0,
+                    "total": 0
+                },
+                {
+                    "description": "Transaction Fee T5",
+                    "unitPrice": 0.8,
+                    "quantity": 0,
+                    "total": 0
+                },
+                {
+                    "description": "Transaction Fee T6",
+                    "unitPrice": 1.8,
+                    "quantity": 0,
+                    "total": 0
+                },
+                {
+                    "description": "Transaction Fee G1",
+                    "unitPrice": 0.3,
+                    "quantity": 0,
+                    "total": 0
+                },
+                {
+                    "description": "Transaction Fee G2",
+                    "unitPrice": 0.3,
+                    "quantity": 0,
+                    "total": 0
+                },
+                {
+                    "description": "Transaction Fee G3",
+                    "unitPrice": 0.4,
+                    "quantity": 0,
+                    "total": 0
+                },
+                {
+                    "description": "Transaction Fee G4",
+                    "unitPrice": 0.4,
+                    "quantity": 0,
+                    "total": 0
+                },
+                {
+                    "description": "Transaction Fee G5",
+                    "unitPrice": 0.3,
+                    "quantity": 0,
+                    "total": 0
+                },
+                {
+                    "description": "Transaction Fee G6",
+                    "unitPrice": 0.3,
+                    "quantity": 0,
+                    "total": 0
+                }
+            ]
+        }
+    }
+}
