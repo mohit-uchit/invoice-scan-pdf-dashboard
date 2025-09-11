@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PDFViewer } from "@/components/pdf-viewer";
 import { InvoiceForm } from "@/components/invoice-form";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 import { api } from "@/lib/api";
 import type { Invoice, InsertInvoice } from "@shared/schema";
 
@@ -13,6 +14,18 @@ export default function Dashboard() {
   const [extractedData, setExtractedData] = useState<any>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [location] = useLocation();
+
+  // Check for invoiceId in URL parameters and load the invoice
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const invoiceId = urlParams.get('invoiceId');
+    
+    if (invoiceId && invoiceId !== currentInvoiceId) {
+      setCurrentInvoiceId(invoiceId);
+      setExtractedData(null); // Clear extracted data when loading existing invoice
+    }
+  }, [location, currentInvoiceId]);
 
   // Upload mutation
   const uploadMutation = useMutation({

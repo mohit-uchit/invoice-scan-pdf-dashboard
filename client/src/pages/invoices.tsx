@@ -57,6 +57,11 @@ export default function Invoices() {
     setLocation(`/dashboard?invoiceId=${id}`);
   };
 
+  const handleEdit = (id: string) => {
+    // Navigate to dashboard with the invoice loaded for editing
+    setLocation(`/dashboard?invoiceId=${id}`);
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -174,6 +179,14 @@ export default function Invoices() {
                               data-testid={`view-invoice-${invoice.id}`}
                             >
                               <i className="fas fa-eye"></i>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEdit(invoice.id)}
+                              data-testid={`edit-invoice-${invoice.id}`}
+                            >
+                              <i className="fas fa-edit text-primary"></i>
                             </Button>
                             <Button
                               variant="ghost"
