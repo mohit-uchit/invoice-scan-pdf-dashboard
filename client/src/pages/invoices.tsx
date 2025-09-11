@@ -72,10 +72,34 @@ export default function Invoices() {
 
   const formatCurrency = (amount?: number, currency = 'USD') => {
     if (!amount) return '-';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency
-    }).format(amount);
+    
+    // Map currency symbols to proper ISO currency codes
+    const currencyMap: { [key: string]: string } = {
+      '€': 'EUR',
+      '£': 'GBP', 
+      '¥': 'JPY',
+      '₹': 'INR',
+      '$': 'USD',
+      '¢': 'USD',
+      'USD': 'USD',
+      'EUR': 'EUR',
+      'GBP': 'GBP',
+      'JPY': 'JPY',
+      'INR': 'INR'
+    };
+    
+    // Get proper currency code or default to USD
+    const properCurrency = currencyMap[currency] || 'USD';
+    
+    try {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: properCurrency
+      }).format(amount);
+    } catch (error) {
+      // Fallback if currency is still invalid
+      return `${currency} ${amount.toFixed(2)}`;
+    }
   };
 
   const getStatusBadge = (invoice: any) => {
