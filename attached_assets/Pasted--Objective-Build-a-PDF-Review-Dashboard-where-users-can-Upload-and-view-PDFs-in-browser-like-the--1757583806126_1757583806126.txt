@@ -1,0 +1,61 @@
+🎯Objective
+Build a PDF Review Dashboard where users can:
+Upload and view PDFs in-browser (like the sample screenshot).
+Run AI extraction using Gemini API or Groq.
+Edit extracted data, perform CRUD, and store in MongoDB.
+Keep frontend and backend separated in a monorepo.
+Follow basic best practices (clear structure, linting, error handling).
+🔧Tech (must use)
+Monorepo (Turborepo or npm workspaces)
+apps/web → Next.js (App Router) + TypeScript + shadcn/ui
+apps/api → Node.js (TypeScript)
+Database: MongoDB (Atlas)
+AI: Gemini API or Groq
+PDF viewer: pdf.js (UX reference: tomoki1207/vscode-pdfviewer)
+Deploy: Both web and API on Vercel
+🔹Core Features
+1) PDF Viewer
+Upload a local PDF (≤25 MB).
+Render it in a left panel viewer (zoom + page navigation).
+Store the file (Vercel Blob or MongoDB GridFS).
+2) AI Data Extraction
+Button: “Extract with AI” → choose Gemini or Groq.
+Extract key invoice data and display it in a right-panel editable form:
+Vendor (name, address, taxId)
+Invoice (number, date, currency, subtotal, taxPercent, total, poNumber, poDate)
+Line items (description, unitPrice, quantity, total)
+3) Data Editing & CRUD
+Edit any extracted field.
+Create/Read/Update/Delete invoice records in MongoDB.
+List page with table + search by vendor.name and invoice.number.
+4) API (apps/api)
+Provide REST JSON endpoints:
+POST /upload → accepts PDF, returns { fileId, fileName }
+POST /extract → body { fileId, model: "gemini" | "groq" } → returns extracted JSON
+GET /invoices → list (+ ?q= search)
+GET /invoices/:id
+PUT /invoices/:id
+DELETE /invoices/:id
+Keep responses consistent and validate payloads.
+5) UI (apps/web)
+Split layout: Left = PDF viewer, Right = editable form.
+Buttons: Extract, Save, Delete.
+shadcn/ui components for inputs, table, buttons, dialogs, toasts.
+💾Minimal Data Shape (store this in MongoDB)
+{  fileId: string,  fileName: string,  vendor: { name: string, address?: string, taxId?: string },  invoice: {    number: string, date: string, currency?: string,    subtotal?: number, taxPercent?: number, total?: number,    poNumber?: string, poDate?: string,    lineItems: Array<{ description: string, unitPrice: number, quantity: number, total: number }>  },  createdAt: string,  updatedAt?: string }
+📂Repo & Deployables (deliverables)
+Public GitHub monorepo with:
+apps/web, apps/api (and optional packages/types)
+Deployed links (Vercel):
+Web: https://<project>-web.vercel.app
+API: https://<project>-api.vercel.app
+3–5 min demo video: upload → view → extract → edit → save → list → update → delete.
+README.md with:
+Setup (one command per app), env vars (MONGODB_URI, GEMINI_API_KEY or GROQ_API_KEY)
+How to run locally and the deployed URLs
+Brief API docs (routes + sample request/response)
+✅Acceptance Criteria (pass/fail)
+PDF uploads and renders in the viewer.
+AI extraction works with Gemini or Groq and returns valid JSON matching the minimal shape.
+Edited fields persist to MongoDB; list view shows saved records with search.
+All listed API endpoints respond correctly.
