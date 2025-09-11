@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -43,6 +43,7 @@ interface InvoiceFormProps {
   fileId?: string;
   fileName?: string;
   invoiceData?: Invoice;
+  extractedData?: any;
   onExtract: (fileId: string, model: string) => void;
   onSave: (data: InsertInvoice | { id: string; data: Partial<Invoice> }) => void;
   onDelete: (id: string) => void;
@@ -54,6 +55,7 @@ export function InvoiceForm({
   fileId, 
   fileName,
   invoiceData, 
+  extractedData,
   onExtract, 
   onSave, 
   onDelete, 
@@ -86,6 +88,108 @@ export function InvoiceForm({
       }
     }
   });
+
+  // Helper functions for data normalization
+  const normalizeNumber = (value: any): number => {
+    const num = parseFloat(value);
+    return isNaN(num) ? 0 : num;
+  };
+  
+  const normalizeDate = (dateStr: any): string => {
+    if (!dateStr) return "";
+    try {
+      const date = new Date(dateStr);
+      return date.toISOString().split('T')[0]; // YYYY-MM-DD format
+    } catch {
+      return String(dateStr);
+    }
+  };
+
+  // Populate form with existing invoice data (for editing)
+  useEffect(() => {
+    if (invoiceData) {
+      form.reset({
+        vendor: {
+          name: invoiceData.vendor?.name || "",
+          address: invoiceData.vendor?.address || "",
+          taxId: invoiceData.vendor?.taxId || ""
+        },
+        invoice: {
+          number: invoiceData.invoice?.number || "",
+          date: normalizeDate(invoiceData.invoice?.date),
+          currency: invoiceData.invoice?.currency || "USD",
+          subtotal: normalizeNumber(invoiceData.invoice?.subtotal),
+          taxPercent: normalizeNumber(invoiceData.invoice?.taxPercent),
+          total: normalizeNumber(invoiceData.invoice?.total),
+          poNumber: invoiceData.invoice?.poNumber || "",
+          poDate: normalizeDate(invoiceData.invoice?.poDate),
+          lineItems: invoiceData.invoice?.lineItems?.length > 0 
+            ? invoiceData.invoice.lineItems.map((item: any) => ({
+                description: item.description || "",
+                unitPrice: normalizeNumber(item.unitPrice),
+                quantity: normalizeNumber(item.quantity) || 1,
+                total: normalizeNumber(item.total)
+              }))
+            : [{ description: "", unitPrice: 0, quantity: 1, total: 0 }]
+        }
+      });
+    }
+  }, [invoiceData, form]);
+
+  // Populate form with extracted data when available (only if not editing existing invoice)
+  useEffect(() => {
+    if (extractedData && !invoiceData) {
+      form.reset({
+        vendor: {
+          name: extractedData.vendor?.name || "",
+          address: extractedData.vendor?.address || "",
+          taxId: extractedData.vendor?.taxId || ""
+        },
+        invoice: {
+          number: extractedData.invoice?.number || "",
+          date: normalizeDate(extractedData.invoice?.date),
+          currency: extractedData.invoice?.currency || "USD",
+          subtotal: normalizeNumber(extractedData.invoice?.subtotal),
+          taxPercent: normalizeNumber(extractedData.invoice?.taxPercent),
+          total: normalizeNumber(extractedData.invoice?.total),
+          poNumber: extractedData.invoice?.poNumber || "",
+          poDate: normalizeDate(extractedData.invoice?.poDate),
+          lineItems: extractedData.invoice?.lineItems?.length > 0 
+            ? extractedData.invoice.lineItems.map((item: any) => ({
+                description: item.description || "",
+                unitPrice: normalizeNumber(item.unitPrice),
+                quantity: normalizeNumber(item.quantity) || 1,
+                total: normalizeNumber(item.total)
+              }))
+            : [{ description: "", unitPrice: 0, quantity: 1, total: 0 }]
+        }
+      });
+    }
+  }, [extractedData, invoiceData, form]);
+
+  // Reset form when invoice is deleted (invoiceData becomes null/undefined)
+  useEffect(() => {
+    if (!invoiceData && !extractedData) {
+      form.reset({
+        vendor: {
+          name: "",
+          address: "",
+          taxId: ""
+        },
+        invoice: {
+          number: "",
+          date: "",
+          currency: "USD",
+          subtotal: 0,
+          taxPercent: 0,
+          total: 0,
+          poNumber: "",
+          poDate: "",
+          lineItems: [{ description: "", unitPrice: 0, quantity: 1, total: 0 }]
+        }
+      });
+    }
+  }, [invoiceData, extractedData, form]);
 
   const handleExtract = () => {
     if (!fileId) {

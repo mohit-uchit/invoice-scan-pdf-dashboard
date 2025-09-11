@@ -10,6 +10,7 @@ export default function Dashboard() {
   const [currentFileId, setCurrentFileId] = useState<string>('');
   const [currentFileName, setCurrentFileName] = useState<string>('');
   const [currentInvoiceId, setCurrentInvoiceId] = useState<string>('');
+  const [extractedData, setExtractedData] = useState<any>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -19,6 +20,8 @@ export default function Dashboard() {
     onSuccess: (data) => {
       setCurrentFileId(data.fileId);
       setCurrentFileName(data.fileName);
+      setExtractedData(null); // Clear extracted data on new upload
+      setCurrentInvoiceId(''); // Clear current invoice
       toast({
         title: "Success",
         description: "PDF uploaded successfully",
@@ -38,12 +41,11 @@ export default function Dashboard() {
     mutationFn: ({ fileId, model }: { fileId: string; model: string }) =>
       api.extractInvoiceData(fileId, model),
     onSuccess: (data) => {
+      setExtractedData(data);
       toast({
         title: "Success",
         description: "Invoice data extracted successfully",
       });
-      // The extracted data will be used to populate the form
-      return data;
     },
     onError: (error: Error) => {
       toast({
@@ -65,7 +67,9 @@ export default function Dashboard() {
     },
     onSuccess: (invoice) => {
       setCurrentInvoiceId(invoice.id);
+      setExtractedData(null); // Clear extracted data after save
       queryClient.invalidateQueries({ queryKey: ['/api/invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/invoices', invoice.id] }); // Invalidate detail cache
       toast({
         title: "Success",
         description: "Invoice saved successfully",
@@ -87,6 +91,7 @@ export default function Dashboard() {
       setCurrentInvoiceId('');
       setCurrentFileId('');
       setCurrentFileName('');
+      setExtractedData(null); // Clear extracted data on delete
       queryClient.invalidateQueries({ queryKey: ['/api/invoices'] });
       toast({
         title: "Success",
@@ -147,6 +152,7 @@ export default function Dashboard() {
           fileId={currentFileId}
           fileName={currentFileName}
           invoiceData={currentInvoice}
+          extractedData={extractedData}
           onExtract={handleExtract}
           onSave={handleSave}
           onDelete={handleDelete}
