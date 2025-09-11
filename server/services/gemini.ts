@@ -4,12 +4,15 @@ import { z } from "zod";
 
 // Check if API key is available
 const apiKey = process.env.GEMINI_API_KEY;
+console.log('🔑 GEMINI_API_KEY check:', apiKey ? `Available (${apiKey.substring(0, 10)}...)` : 'NOT SET');
+
 if (!apiKey) {
   console.error('❌ GEMINI_API_KEY environment variable is not set');
+  throw new Error('GEMINI_API_KEY environment variable is required');
 }
 
 const ai = new GoogleGenAI({ 
-  apiKey: apiKey || "" 
+  apiKey: apiKey 
 });
 
 const extractionResponseSchema = z.object({
