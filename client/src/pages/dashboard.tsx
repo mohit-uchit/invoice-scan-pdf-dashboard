@@ -145,6 +145,7 @@ export default function Dashboard() {
         />
         <InvoiceForm
           fileId={currentFileId}
+          fileName={currentFileName}
           invoiceData={currentInvoice}
           onExtract={handleExtract}
           onSave={handleSave}

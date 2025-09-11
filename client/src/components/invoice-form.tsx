@@ -41,6 +41,7 @@ type InvoiceFormData = z.infer<typeof invoiceFormSchema>;
 
 interface InvoiceFormProps {
   fileId?: string;
+  fileName?: string;
   invoiceData?: Invoice;
   onExtract: (fileId: string, model: string) => void;
   onSave: (data: InsertInvoice | { id: string; data: Partial<Invoice> }) => void;
@@ -51,6 +52,7 @@ interface InvoiceFormProps {
 
 export function InvoiceForm({ 
   fileId, 
+  fileName,
   invoiceData, 
   onExtract, 
   onSave, 
@@ -109,7 +111,7 @@ export function InvoiceForm({
     } else if (fileId) {
       onSave({
         fileId,
-        fileName: "uploaded.pdf", // This should come from the upload response
+        fileName: fileName || "document.pdf",
         vendor: data.vendor,
         invoice: data.invoice
       } as InsertInvoice);
