@@ -24,6 +24,9 @@ export default function Dashboard() {
     if (invoiceId && invoiceId !== currentInvoiceId) {
       setCurrentInvoiceId(invoiceId);
       setExtractedData(null); // Clear extracted data when loading existing invoice
+    } else if (!invoiceId && currentInvoiceId) {
+      // Clear invoice if no invoiceId in URL but we have one set
+      setCurrentInvoiceId('');
     }
   }, [location, currentInvoiceId]);
 
@@ -35,6 +38,8 @@ export default function Dashboard() {
       setCurrentFileName(data.fileName);
       setExtractedData(null); // Clear extracted data on new upload
       setCurrentInvoiceId(''); // Clear current invoice
+      // Also clear URL parameters
+      window.history.replaceState({}, '', window.location.pathname);
       toast({
         title: "Success",
         description: "PDF uploaded successfully",

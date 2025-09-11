@@ -136,9 +136,10 @@ export function InvoiceForm({
     }
   }, [invoiceData, form]);
 
-  // Populate form with extracted data when available (only if not editing existing invoice)
+  // Populate form with extracted data when available 
+  // Priority: extractedData > invoiceData (fresh extraction takes precedence)
   useEffect(() => {
-    if (extractedData && !invoiceData) {
+    if (extractedData) {
       form.reset({
         vendor: {
           name: extractedData.vendor?.name || "",
