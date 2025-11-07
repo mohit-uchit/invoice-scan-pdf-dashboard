@@ -7,10 +7,25 @@ import { insertInvoiceSchema, updateInvoiceSchema } from '../shared/schema';
 import multer from 'multer';
 import { randomUUID } from 'crypto';
 import dotenv from 'dotenv';
+import cors from 'cors';
 
 // Load environment variables
 dotenv.config();
 dotenv.config({ path: './server/.env' });
+
+// CORS configuration
+const corsOptions = {
+  origin: [
+    'https://invoice-scan-pdf-dashboard.vercel.app',
+    'https://invoice-scan-pdf-dashboard-p7udb6itj-darkys-projects-1599475a.vercel.app',
+    /\.vercel\.app$/, // Allow all vercel.app subdomains
+    process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : '', // Allow localhost in development
+  ].filter(Boolean),
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  maxAge: 86400, // 24 hours
+};
 
 // Configure multer for file uploads (25MB limit)
 // Use raw multer for serverless
@@ -47,8 +62,21 @@ const fileStorage = new Map<
 >();
 
 const app = express();
+
+// Apply CORS middleware
+app.use(cors(corsOptions));
+
+// Body parsing middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Add security headers
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  next();
+});
 
 // Register API routes
 app.post('/api/upload', async (req, res) => {
@@ -258,6 +286,27 @@ app.delete('/api/invoices/:id', async (req, res) => {
   }
 });
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
-  app(req, res);
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  // Pass through to express app
+  return new Promise<void>(resolve => {
+    app(req as any, res as any, (err?: any) => {
+      if (err) {
+        console.error('API Error:', err);
+        res.status(500).json({
+          success: false,
+          error: {
+            message:
+              err instanceof Error ? err.message : 'Internal server error',
+          },
+        });
+      }
+      resolve();
+    });
+  });
 }
