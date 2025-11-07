@@ -6,9 +6,15 @@ import { extractInvoiceData } from '../server/services/gemini';
 import { insertInvoiceSchema, updateInvoiceSchema } from '../shared/schema';
 import multer from 'multer';
 import { randomUUID } from 'crypto';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
+dotenv.config({ path: './server/.env' });
 
 // Configure multer for file uploads (25MB limit)
-const upload = multer({
+// Use raw multer for serverless
+const multerInstance = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 25 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
@@ -19,6 +25,20 @@ const upload = multer({
     }
   },
 });
+
+// Promisify multer middleware for serverless
+const upload = (
+  req: express.Request,
+  res: express.Response,
+): Promise<Express.Multer.File> => {
+  return new Promise((resolve, reject) => {
+    multerInstance.single('file')(req, res, err => {
+      if (err) reject(err);
+      else if (!req.file) reject(new Error('No file uploaded'));
+      else resolve(req.file);
+    });
+  });
+};
 
 // Simple file storage simulation
 const fileStorage = new Map<
@@ -31,20 +51,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Register API routes
-app.post('/api/upload', upload.single('file'), async (req, res) => {
+app.post('/api/upload', async (req, res) => {
   try {
-    if (!req.file) {
+    const file = await upload(req, res).catch(() => null);
+
+    if (!file) {
       return res.status(400).json({
         success: false,
-        error: { message: 'No file uploaded' },
+        error: { message: 'No file uploaded or invalid file type' },
       });
     }
 
     const fileId = randomUUID();
-    const fileName = req.file.originalname;
+    const fileName = file.originalname;
 
     fileStorage.set(fileId, {
-      buffer: req.file.buffer,
+      buffer: file.buffer,
       fileName,
       uploadedAt: new Date().toISOString(),
     });
@@ -54,7 +76,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
       data: {
         fileId,
         fileName,
-        fileSize: req.file.size,
+        fileSize: file.size,
         uploadedAt: new Date().toISOString(),
       },
     });
