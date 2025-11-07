@@ -13,17 +13,40 @@ import cors from 'cors';
 dotenv.config();
 dotenv.config({ path: './server/.env' });
 
-// CORS configuration
+// CORS configuration: use a function so we can allow production host and any
+// vercel.app subdomain, and avoid accidentally allowing credentials to be
+// sent to preview deployments which may be protected by Vercel SSO.
+const allowedOrigins = [
+  'https://invoice-scan-pdf-dashboard.vercel.app',
+  process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : null,
+].filter(Boolean) as string[];
+
 const corsOptions = {
-  origin: [
-    'https://invoice-scan-pdf-dashboard.vercel.app',
-    'https://invoice-scan-pdf-dashboard-p7udb6itj-darkys-projects-1599475a.vercel.app',
-    /\.vercel\.app$/, // Allow all vercel.app subdomains
-    process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : '', // Allow localhost in development
-  ].filter(Boolean),
+  origin: (
+    origin: string | undefined,
+    callback: (err: any, ok?: boolean) => void,
+  ) => {
+    // Allow same-origin or no origin (server-to-server/postman)
+    if (!origin) return callback(null, true);
+
+    // Exact allowlist
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+
+    // Allow *.vercel.app preview domains
+    if (/\.vercel\.app$/.test(origin)) return callback(null, true);
+
+    // Otherwise reject
+    return callback(new Error('Not allowed by CORS'));
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'Content-Length',
+    'X-Requested-With',
+  ],
+  // Do not allow credentials by default — avoid cookie-based SSO triggers
+  credentials: false,
   maxAge: 86400, // 24 hours
 };
 
