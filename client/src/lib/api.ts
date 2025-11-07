@@ -1,5 +1,5 @@
-import { apiRequest } from "./queryClient";
-import type { Invoice, InsertInvoice, UpdateInvoice } from "@shared/schema";
+import { apiRequest } from './queryClient';
+import type { Invoice, InsertInvoice, UpdateInvoice } from '@shared/schema';
 
 export interface UploadResponse {
   fileId: string;
@@ -39,12 +39,14 @@ export interface InvoicesResponse {
   offset: number;
 }
 
+import { config } from '../config';
+
 export const api = {
   async uploadFile(file: File): Promise<UploadResponse> {
     const formData = new FormData();
     formData.append('file', file);
-    
-    const response = await fetch('/api/upload', {
+
+    const response = await fetch(`${config.apiBaseUrl}/upload`, {
       method: 'POST',
       body: formData,
     });
@@ -58,13 +60,23 @@ export const api = {
     return result.data;
   },
 
-  async extractInvoiceData(fileId: string, model = 'gemini'): Promise<ExtractResponse> {
-    const response = await apiRequest('POST', '/api/extract', { fileId, model });
+  async extractInvoiceData(
+    fileId: string,
+    model = 'gemini',
+  ): Promise<ExtractResponse> {
+    const response = await apiRequest('POST', '/api/extract', {
+      fileId,
+      model,
+    });
     const result = await response.json();
     return result.data;
   },
 
-  async getInvoices(search?: string, limit = 10, offset = 0): Promise<InvoicesResponse> {
+  async getInvoices(
+    search?: string,
+    limit = 10,
+    offset = 0,
+  ): Promise<InvoicesResponse> {
     const params = new URLSearchParams();
     if (search) params.append('q', search);
     params.append('limit', limit.toString());
@@ -98,6 +110,6 @@ export const api = {
   },
 
   getPdfUrl(fileId: string): string {
-    return `/api/files/${fileId}`;
-  }
+    return `${config.apiBaseUrl}/files/${fileId}`;
+  },
 };

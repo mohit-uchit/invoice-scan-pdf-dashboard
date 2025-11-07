@@ -6,7 +6,7 @@
       "use": "@vercel/node"
     },
     {
-      "src": "client/package.json",
+      "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
         "distDir": "dist/public"
@@ -19,13 +19,11 @@
       "dest": "/api/index.ts"
     },
     {
+      "handle": "filesystem"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/client/$1"
+      "dest": "/dist/public/index.html"
     }
-  ],
-  "env": {
-    "MONGODB_URI": "@mongodb_uri",
-    "GEMINI_API_KEY": "@gemini_api_key",
-    "SESSION_SECRET": "@session_secret"
-  }
+  ]
 }
